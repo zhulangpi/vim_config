@@ -3,6 +3,22 @@
 " =============================================================================
 
 " -----------------------------------------------------------------------------
+"  每移动15次键盘就设置一次undolevel 用来workaround undolevels总是变成-1的问题
+"  let &l:undolevels=g:move_count2
+" -----------------------------------------------------------------------------
+let g:move_count = 0
+
+function! SetUndoLevels()
+    let g:move_count=g:move_count+1
+    if g:move_count % 15 == 0
+        set undolevels=700000
+    endif
+endfunction
+autocmd CursorMoved * call SetUndoLevels()
+autocmd CursorMovedI * call SetUndoLevels()
+
+"
+" -----------------------------------------------------------------------------
 "  < Linux Gvim/Vim 默认配置> 做了一点修改
 " -----------------------------------------------------------------------------
 " Uncomment the following to have Vim jump to the last position when
@@ -22,7 +38,7 @@ if has("syntax")
 endif
 
 set mouse=v                    " 启用鼠标
-set t_Co=8                   " 在终端启用256色
+set t_Co=256                   " 在终端启用256色
 set backspace=2                " 设置退格键可用
 
 " Source a global configuration file if available
@@ -30,6 +46,10 @@ if filereadable("/etc/vim/vimrc.local")
     source /etc/vim/vimrc.local
 endif
 
+set undofile
+set undodir=$HOME/.vim/undo
+set undolevels=10000000
+set undoreload=10000000
 
 " =============================================================================
 "                          << 以下为用户自定义配置 >>
@@ -54,30 +74,65 @@ filetype on                                           "启用文件类型侦测
 filetype plugin on                                    "针对不同的文件类型加载对应的插件
 filetype plugin indent on                             "启用缩进
 set smartindent                                       "启用智能对齐方式
-set expandtab                                         "将Tab键转换为空格
-set tabstop=4                                         "设置Tab键的宽度
-set shiftwidth=4                                      "换行时自动缩进4个空格
 set smarttab                                          "指定按一次backspace就删除shiftwidth宽度的空格
 set wrap                                              "自动换行
-set so=5                                              "翻页留5行
-"set foldenable                                        "启用折叠
-"set foldmethod=indent                                 "indent 折叠方式
+set so=15                                             "翻页留5行
+
+
+set noexpandtab                                       "将Tab键转换为空格
+set tabstop=8                                         "设置Tab键的宽度
+set shiftwidth=8                                      "换行时自动缩进4个空格
+
+
+nmap t8 :set noexpandtab<CR>:set tabstop=8<CR>:set shiftwidth=8<CR>
+nmap t4 :set expandtab<CR>:set tabstop=4<CR>:set shiftwidth=4<CR>
+
+" 判断当前是否linux目录来配置tab格式
+"if (expand('%') == "" && fnamemodify("Makefile",":p") =~ "linux") || expand('%') =~ "linux"
+"	set tabstop=8                                         "设置Tab键的宽度
+"	set shiftwidth=8                                      "换行时自动缩进4个空格
+"else
+"	set expandtab                                         "将Tab键转换为空格
+"	set tabstop=4                                         "设置Tab键的宽度
+"	set shiftwidth=4                                      "换行时自动缩进4个空格
+"endif
 
 " 用空格键来开关折叠
 nnoremap <space> @=((foldclosed(line('.')) < 0) ? 'zc' : 'zo')<CR>
+nnoremap <leader>ls :ls<cr>:b<space>
+nnoremap <leader>vls :copen<CR>
+nnoremap <leader>p :vimgrep /<C-R>=expand("<cword>")<CR>/g **<CR>:copen<CR>
+nmap smv :set mouse=v<CR>
+nmap sma :set mouse=a<CR>
+nmap 9 $
+nmap f g*
+vnoremap ff y/<C-R>"<CR>"
+nmap zh :nohlsearch<CR>
+nmap <c-n> :bp<CR>
+nmap <c-N> :bn<CR>
+nmap <c-g> :cs find g 
+nmap u :undo<CR>:set undolevels=1000000<CR>
+
+nnoremap <leader>on :set smartindent<CR>
+nnoremap <leader>off :set nosmartindent<CR>
 
 " 当文件在外部被修改，自动更新该文件
 set autoread
 
-" 常规模式下输入 cS 清除行尾空格
-nmap cS :%s/\s\+$//g<CR>:noh<CR>
-nmap 9 $
-nmap f g*
+" 常规模式下输入 cls 清除行尾空格
+nmap cls :%s/\s*$//g<CR>:noh<CR>
+
 " 常规模式下输入 cM 清除行尾 ^M 符号
-nmap cM :%s/\r$//g<CR>:noh<CR>
+nmap clm :%s/\r$//g<CR>:noh<CR>
 
 " 设置:w!为使用超级用户权限保存
 cmap w!<CR> w !sudo tee > /dev/null %<CR>
+
+" 防止没有松开shift导致麻烦
+"cmap Q q
+"cmap W w
+"cnoremap qq Q
+"cnoremap ww W
 
 set hlsearch                                          "高亮搜索
 set incsearch                                         "在输入要搜索的文字时，实时匹配
@@ -89,6 +144,9 @@ imap <c-k> <Up>
 imap <c-j> <Down>
 imap <c-h> <Left>
 imap <c-l> <Right>
+
+imap smv:set mouse=v<CR>
+imap sma:set mouse=a<CR>
 
 " 长行浏览
 map j gj
@@ -103,10 +161,13 @@ map k gk
 set number                                            "显示行号
 set laststatus=2                                      "启用状态栏信息
 set cmdheight=2                                       "设置命令行的高度为2，默认为1
+""set bg=dark
 set cursorline                                        "突出显示当前行
-nmap <leader>ls :ls<CR>:b 
-colorscheme Tomorrow-Night-Eighties                   "终端配色方案
+set cursorcolumn
 
+colorscheme Tomorrow-Night-Eighties                   "终端配色方案
+""highlight CursorLine cterm=none ctermbg=20
+""highlight CursorColumn cterm=none ctermbg=6
 
 " -----------------------------------------------------------------------------
 "  < 代码文本配置 >
@@ -120,8 +181,6 @@ autocmd Bufnewfile *.py exec ":call HeaderPython()"
 func HeaderC()
     call setline(1, "/*************************************************************************")
     call setline(2, " > File Name: ".expand("%"))
-    call setline(3, " > Author: ")
-    call setline(4, " > Email: ")
     call setline(5, " > Created Time: ".strftime("%c"))
     call setline(6, "************************************************************************/")
     call setline(7, "")
@@ -141,8 +200,6 @@ endfunc
 func HeaderShell()
     call setline(1,"#########################################################################")
     call setline(2, "# File Name: ".expand("%"))
-    call setline(3, "# Author: ")
-    call setline(4, "# Email: ")
     call setline(5, "# Created Time: ".strftime("%c"))
     call setline(6,"#########################################################################")
     call setline(7, "#!/bin/bash")
@@ -156,180 +213,11 @@ func HeaderPython()
     call setline(3, "")
     call setline(4, "'''")
     call setline(5, " > File Name: ".expand("%"))
-    call setline(6, " > Author:")
-    call setline(7, " > Email: ")
     call setline(8, " > Created Time: ".strftime("%c"))
     call setline(9, "'''")
     call setline(10, "")
     call setline(11, "")
     normal G
-endfunc
-
-" -----------------------------------------------------------------------------
-"  < 单文件编译、连接、运行配置 >
-" -----------------------------------------------------------------------------
-
-" C/C++
-" Ctrl + F5 一键保存、编译、连接存并运行
-map <c-F5> :call Run()<CR>
-imap <c-F5> <ESC>:call Run()<CR>
-
-if expand("%:e") == 'c' || expand("%:e") == 'cpp'
-    " F5 一键保存并编译
-    map <F5> :call Compile()<CR>
-    imap <F5> <ESC>:call Compile()<CR>
-elseif expand("%:e") == 'py'
-    " 如果是Python文档
-    map <F5> :call RunPython()<CR>
-    imap <F5> <ESC>:call RunPython()<CR>
-endif
-
-" Ctrl + F6 一键保存并连接
-map <c-F6> :call Link()<CR>
-imap <c-F6> <ESC>:call Link()<CR>
-
-" F6 一键保存并调试
-map <F6> :call Debug()<CR>
-
-" F7清理编译运行产生的文件
-map <F7> ::call Clear()<CR>
-
-let s:LastShellReturn_C = 0
-let s:LastShellReturn_L = 0
-let s:ShowWarning = 1
-let s:Obj_Extension = '.o'
-let s:Sou_Error = 0
-
-let s:linux_CFlags = 'gcc\ -Wall\ -g\ -O0\ -c\ %\ -o\ %<.o'
-let s:linux_CPPCompileFlags = 'g++\ -Wall\ -g\ -O0\ -c\ %\ -o\ %<.o\ -std=c++14'
-let s:linux_CPPLinkFlags = 'g++\ -o\ %<\ %<.o\ -std=c++14'
-
-func! Compile()
-    exe ":ccl"
-    exe ":update"
-    let s:Sou_Error = 0
-    let s:LastShellReturn_C = 0
-    let Sou = expand("%:p")
-    let v:statusmsg = ''
-    if expand("%:e") == "c" || expand("%:e") == "cpp" || expand("%:e") == "cxx"
-        let Obj = expand("%:p:r").s:Obj_Extension
-        let Obj_Name = expand("%:p:t:r").s:Obj_Extension
-        if !filereadable(Obj) || (filereadable(Obj) && (getftime(Obj) < getftime(Sou)))
-            redraw!
-            if expand("%:e") == "c"
-                exe ":setlocal makeprg=".s:linux_CFlags
-                echohl WarningMsg | echo " compiling..."
-                silent make
-            elseif expand("%:e") == "cpp" || expand("%:e") == "cxx"
-                exe ":setlocal makeprg=".s:linux_CPPCompileFlags
-                echohl WarningMsg | echo " compiling..."
-                silent make
-            endif
-            redraw!
-            if v:shell_error != 0
-                let s:LastShellReturn_C = v:shell_error
-            endif
-            if empty(v:statusmsg)
-                echohl WarningMsg | echo " compilation successful"
-            else
-                exe ":bo cope"
-            endif
-        else
-            echohl WarningMsg | echo ""Obj_Name"is up to date"
-        endif
-    else
-        let s:Sou_Error = 1
-        echohl WarningMsg | echo " please choose the correct source file"
-    endif
-    exe ":setlocal makeprg=make"
-endfunc
-
-func! Link()
-    call Compile()
-    if s:Sou_Error || s:LastShellReturn_C != 0
-        return
-    endif
-    if expand("%:e") == "c" || expand("%:e") == "cpp" || expand("%:e") == "cxx"
-        let s:LastShellReturn_L = 0
-        let Sou = expand("%:p")
-        let Obj = expand("%:p:r").s:Obj_Extension
-        let Exe = expand("%:p:r")
-        let Exe_Name = expand("%:p:t:r")
-        let v:statusmsg = ''
-        if filereadable(Obj) && (getftime(Obj) >= getftime(Sou))
-            redraw!
-            if !executable(Exe) || (executable(Exe) && getftime(Exe) < getftime(Obj))
-                if expand("%:e") == "c"
-                    setlocal makeprg=gcc\ -o\ %<\ %<.o
-                    echohl WarningMsg | echo " linking..."
-                    silent make
-                elseif expand("%:e") == "cpp" || expand("%:e") == "cxx"
-                    exec ':setlocal makeprg='.s:linux_CPPLinkFlags
-                    echohl WarningMsg | echo " linking..."
-                    silent make
-                endif
-                redraw!
-                if v:shell_error != 0
-                    let s:LastShellReturn_L = v:shell_error
-                endif
-                if empty(v:statusmsg)
-                    echohl WarningMsg | echo " linking successful"
-                else
-                    exe ":bo cope"
-                endif
-            else
-                echohl WarningMsg | echo ""Exe_Name"is up to date"
-            endif
-        endif
-        setlocal makeprg=make
-    endif
-endfunc
-
-func! Run()
-    let s:ShowWarning = 0
-    call Link()
-    let s:ShowWarning = 1
-    if s:Sou_Error || s:LastShellReturn_C != 0 || s:LastShellReturn_L != 0
-        return
-    endif
-    let Sou = expand("%:p")
-    if expand("%:e") == "c" || expand("%:e") == "cpp" || expand("%:e") == "cxx"
-        let Obj = expand("%:p:r").s:Obj_Extension
-        let Exe = expand("%:p:r")
-        if executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
-            redraw!
-            echohl WarningMsg | echo " running..."
-            exe ":!clear; ./%<"
-            redraw!
-            echohl WarningMsg | echo " running finish"
-        endif
-    endif
-endfunc
-
-func! Debug()
-    let s:ShowWarning = 0
-    call Link()
-    let s:ShowWarning = 1
-    if s:Sou_Error || s:LastShellReturn_C != 0 || s:LastShellReturn_L != 0
-        return
-    endif
-    let Sou = expand("%:p")
-    if expand("%:e") == "c" || expand("%:e") == "cpp" || expand("%:e") == "cxx"
-        let Obj = expand("%:p:r").s:Obj_Extension
-        let Exe = expand("%:p:r")
-        if executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
-            exec "!clear; gdb ./%<"
-        endif
-    endif
-endfunc
-
-func! RunPython()
-    exec "w"
-    exec "!clear; python %"
-endfunc
-
-func! Clear()
-    exe "!rm ".expand("%<").'.o '.expand("%<")
 endfunc
 
 " -----------------------------------------------------------------------------
@@ -359,20 +247,17 @@ if has("cscope")
     "在当前目录中添加任何数据库
     if filereadable("cscope.out")
         cs add cscope.out
-    "否则添加数据库环境中所指出的
-    elseif $cscope_db != ""
-        cs add $cscope_db
     endif
     set cscopeverbose
     "快捷键设置
-    nmap <leader>s :cs find s <c-r>=expand("<cword>")<cr><cr>:copen<CR>
+    nmap <leader>s :cs find s <C-R>=expand("<cword>")<CR><CR>:copen<CR>
     nmap <leader>g :cs find g <C-R>=expand("<cword>")<CR><CR>
-     nmap <leader>c :cs find c <C-R>=expand("<cword>")<CR><CR>:copen<CR>
-    nmap <leader>t :cs find t <C-R>=expand("<cword>")<CR><CR>:copen<CR>
-    nmap <leader>e :cs find e <C-R>=expand("<cword>")<CR><CR>:copen<CR>
-    nmap <leader>f :cs find f <C-R>=expand("<cfile>")<CR><CR>:copen<CR>
-    nmap <leader>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>:copen<CR>
-    nmap <leader>d :cs find d <C-R>=expand("<cword>")<CR><CR>:copen<CR>
+    "nmap <leader>c :cs find c <C-R>=expand("<cword>")<CR><CR>:copen<CR>
+    "nmap <leader>t :cs find t <C-R>=expand("<cword>")<CR><CR>:copen<CR>
+    "nmap <leader>e :cs find e <C-R>=expand("<cword>")<CR><CR>:copen<CR>
+    "nmap <leader>f :cs find f <C-R>=expand("<cfile>")<CR><CR>:copen<CR>
+    "nmap <leader>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>:copen<CR>
+    "nmap <leader>d :cs find d <C-R>=expand("<cword>")<CR><CR>:copen<CR>
 endif
 
 " -----------------------------------------------------------------------------
@@ -386,7 +271,7 @@ set tags=./tags;                            "向上级目录递归查找tags文�
 " =============================================================================
 
 " 自动切换目录为当前编辑文件所在目录
-"au BufRead,BufNewFile,BufEnter * cd %:p:h
+" au BufRead,BufNewFile,BufEnter * cd %:p:h
 
 " =============================================================================
 "                          << 其它 >>
@@ -395,3 +280,4 @@ set tags=./tags;                            "向上级目录递归查找tags文�
 " 注：上面配置中的"<Leader>"在本软件中设置为"\"键（引号里的反斜杠），如<Leader>t
 " 指在常规模式下按"\"键加"t"键，这里不是同时按，而是先按"\"键后按"t"键，间隔在一
 " 秒内，而<Leader>cs是先按"\"键再按"c"又再按"s"键
+
