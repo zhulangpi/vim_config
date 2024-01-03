@@ -76,13 +76,11 @@ filetype plugin indent on                             "启用缩进
 set smartindent                                       "启用智能对齐方式
 set smarttab                                          "指定按一次backspace就删除shiftwidth宽度的空格
 set wrap                                              "自动换行
-set so=15                                             "翻页留5行
-
+set so=15                                              "翻页留5行
 
 set noexpandtab                                       "将Tab键转换为空格
 set tabstop=8                                         "设置Tab键的宽度
 set shiftwidth=8                                      "换行时自动缩进4个空格
-
 
 nmap t8 :set noexpandtab<CR>:set tabstop=8<CR>:set shiftwidth=8<CR>
 nmap t4 :set expandtab<CR>:set tabstop=4<CR>:set shiftwidth=4<CR>
@@ -110,7 +108,7 @@ vnoremap ff y/<C-R>"<CR>"
 nmap zh :nohlsearch<CR>
 nmap <c-n> :bp<CR>
 nmap <c-N> :bn<CR>
-nmap <c-g> :cs find g 
+nmap <c-g> :cs find g
 nmap u :undo<CR>:set undolevels=1000000<CR>
 
 nnoremap <leader>on :set smartindent<CR>
@@ -122,7 +120,7 @@ set autoread
 " 常规模式下输入 cls 清除行尾空格
 nmap cls :%s/\s*$//g<CR>:noh<CR>
 
-" 常规模式下输入 cM 清除行尾 ^M 符号
+" 常规模式下输入 clm 清除行尾 ^M 符号
 nmap clm :%s/\r$//g<CR>:noh<CR>
 
 " 设置:w!为使用超级用户权限保存
@@ -176,7 +174,7 @@ colorscheme Tomorrow-Night-Eighties                   "终端配色方案
 "新建.c,.h,.sh文件，自动插入文件头
 autocmd BufNewFile *.cpp,*.[ch] exec ":call HeaderC()"
 autocmd BufNewFile *.sh exec ":call HeaderShell()"
-autocmd Bufnewfile *.py exec ":call HeaderPython()" 
+autocmd Bufnewfile *.py exec ":call HeaderPython()"
 
 func HeaderC()
     call setline(1, "/*************************************************************************")

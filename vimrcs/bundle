@@ -7,14 +7,13 @@
 
 set nocompatible                                      "禁用 Vi 兼容模式
 
+" 使用Vundle来管理Vundle，这个必须要有。
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
-" 使用Vundle来管理Vundle，这个必须要有。
-Bundle 'gmarik/vundle'
-
 " 以下为要安装或更新的插件，不同仓库都有（具体书写规范请参考帮助）
 Bundle 'a.vim'
+Plugin 'zakj/vim-showmarks'
 Bundle 'jiangmiao/auto-pairs'
 Bundle 'bufexplorer.zip'
 Bundle 'ccvext.vim'
@@ -26,16 +25,24 @@ Bundle 'Lokaltog/vim-powerline'
 Bundle 'repeat.vim'
 Bundle 'wesleyche/SrcExpl'
 Bundle 'tpope/vim-surround'
-" Bundle 'scrooloose/syntastic'  "与YCM冲突，如果不装YCM则启用它
+"Bundle 'scrooloose/syntastic'  "与YCM冲突，如果不装YCM则启用它
 Bundle 'tagbar'
 Bundle 'taglist.vim'
 Bundle 'TxtBrowser'
-Bundle 'ctrlpvim/ctrlp.vim'
+"Bundle 'ctrlp.vim'
 "Bundle 'YouCompleteMe'
+"Plugin 'ShowMarks-master'
+Plugin 'vim-signature-master'
+"Plugin 'cscope_dynamic-master'
+Bundle 'LeaderF'
+
+
 
 " =============================================================================
 "                          << 以下为常用插件配置 >>
 " =============================================================================
+
+nmap <c-p> :LeaderfFile<CR>
 
 " -----------------------------------------------------------------------------
 "  < a.vim 插件配置 >
@@ -63,6 +70,15 @@ noremap <c-j> <c-w>j
 noremap <c-h> <c-w>h
 noremap <c-l> <c-w>l
 
+":map [[ ?{<CR>w99[{
+":map ][ /}<CR>b99]}
+":map ]] j0[[%/{<CR>
+":map [] k$][%?}<CR>
+
+
+
+
+
 " -----------------------------------------------------------------------------
 "  < ccvext.vim 插件配置 >
 " -----------------------------------------------------------------------------
@@ -77,6 +93,9 @@ noremap <c-l> <c-w>l
 " -----------------------------------------------------------------------------
 " 高亮括号与运算符等
 au! BufRead,BufNewFile,BufEnter *.{c,cpp,h,java,javascript} call CSyntaxAfter()
+
+nmap <c-r> :TlistOpen<CR>
+imap <c-r> <ESC>:TlistOpen<CR>
 
 " -----------------------------------------------------------------------------
 "  < indentLine 插件配置 >
@@ -101,6 +120,7 @@ let g:indentLine_color_term = 239
 
 " 常规模式下输入 F2 调用插件
 nmap <F2> :NERDTreeToggle<CR>
+nmap <F9> :NERDTreeFind<CR>
 
 " -----------------------------------------------------------------------------
 "  < repeat 插件配置 >
@@ -158,3 +178,10 @@ func YCMJUMP()
         exec "normal zR"
     endif
 endfunc
+
+" -----------------------------------------------------------------------------
+" < CtrlP 插件配置>
+" -----------------------------------------------------------------------------
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
+
