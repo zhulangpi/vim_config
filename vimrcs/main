@@ -108,7 +108,7 @@ vnoremap ff y/<C-R>"<CR>"
 nmap zh :nohlsearch<CR>
 nmap <c-n> :bp<CR>
 nmap <c-N> :bn<CR>
-nmap <c-g> :cs find g
+nmap <c-g> :cs find g 
 nmap u :undo<CR>:set undolevels=1000000<CR>
 
 nnoremap <leader>on :set smartindent<CR>
@@ -179,18 +179,18 @@ autocmd Bufnewfile *.py exec ":call HeaderPython()"
 func HeaderC()
     call setline(1, "/*************************************************************************")
     call setline(2, " > File Name: ".expand("%"))
-    call setline(5, " > Created Time: ".strftime("%c"))
-    call setline(6, "************************************************************************/")
-    call setline(7, "")
+    call setline(3, " > Created Time: ".strftime("%c"))
+    call setline(4, "************************************************************************/")
+    call setline(5, "")
 
     if &filetype == 'cpp'
-    call setline(8, "#include <iostream>")
-    call setline(9, "using namespace std;")
-    call setline(10, "")
+    call setline(6, "#include <iostream>")
+    call setline(7, "using namespace std;")
+    call setline(8, "")
     endif
     if &filetype == 'c'
-    call setline(8, "#include <stdio.h>")
-    call setline(9, "")
+    call setline(6, "#include <stdio.h>")
+    call setline(7, "")
     endif
     normal G
 endfunc
@@ -198,10 +198,10 @@ endfunc
 func HeaderShell()
     call setline(1,"#########################################################################")
     call setline(2, "# File Name: ".expand("%"))
-    call setline(5, "# Created Time: ".strftime("%c"))
-    call setline(6,"#########################################################################")
-    call setline(7, "#!/bin/bash")
-    call setline(8, "")
+    call setline(3, "# Created Time: ".strftime("%c"))
+    call setline(4,"#########################################################################")
+    call setline(5, "#!/bin/bash")
+    call setline(6, "")
     normal G
 endfunc
 
@@ -211,10 +211,10 @@ func HeaderPython()
     call setline(3, "")
     call setline(4, "'''")
     call setline(5, " > File Name: ".expand("%"))
-    call setline(8, " > Created Time: ".strftime("%c"))
-    call setline(9, "'''")
-    call setline(10, "")
-    call setline(11, "")
+    call setline(6, " > Created Time: ".strftime("%c"))
+    call setline(7, "'''")
+    call setline(8, "")
+    call setline(9, "")
     normal G
 endfunc
 
