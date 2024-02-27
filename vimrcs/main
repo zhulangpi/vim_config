@@ -164,6 +164,7 @@ set cursorline                                        "突出显示当前行
 set cursorcolumn
 
 colorscheme Tomorrow-Night-Eighties                   "终端配色方案
+hi Normal ctermbg=none
 ""highlight CursorLine cterm=none ctermbg=20
 ""highlight CursorColumn cterm=none ctermbg=6
 
